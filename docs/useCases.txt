@@ -1,0 +1,132 @@
+Proje Use Case’leri (Story + Beklenen Davranış)
+
+UC-01 — Customer kayıt olur
+
+Amaç: Sistemde bir müşteri yaratmak.
+Aktör: Customer / Admin / Sistem
+Ön koşul: Yok
+Ana akış:
+	1.	Sistem customer kaydı oluşturur.
+	2.	Customer “aktif” hale gelir (veya doğrulama bekler).
+Sonuç: customer tablosunda yeni kayıt.
+
+Kalite notu: Email/telefon gibi kimlik alanları benzersiz olmalı (uniqueness).
+
+⸻
+
+UC-02 — Customer için hesap açma (currency bazlı)
+
+Amaç: Müşterinin TRY/EUR/USD hesabını açmak.
+Aktör: Sistem / Customer
+Ön koşul: Customer var.
+Ana akış:
+	1.	Sistem customer için seçilen currency’de account oluşturur.
+	2.	Aynı currency için ikinci account açılmasına izin vermez (iş kuralı).
+Sonuç: account tablosunda kayıt oluşur.
+
+Kalite notu: (customer_id + currency) kombinasyonu tekil olmalı.
+
+⸻
+
+UC-03 — Para yatırma (DEPOSIT)
+
+Amaç: Account’a para girişi kaydetmek.
+Aktör: Customer / Sistem
+Ön koşul: Account aktif.
+Ana akış:
+	1.	Sistem account üzerinde bir transaction oluşturur.
+	2.	Direction = IN, Type = DEPOSIT.
+Sonuç: transaction tablosunda 1 kayıt.
+
+Kalite notu: amount > 0, timestamp mantıklı, currency account ile uyumlu olmalı.
+
+⸻
+
+UC-04 — Para çekme (WITHDRAW)
+
+Amaç: Account’tan para çıkışı kaydetmek.
+Aktör: Customer / Sistem
+Ön koşul: Account aktif.
+Ana akış:
+	1.	Sistem account üzerinde transaction oluşturur.
+	2.	Direction = OUT, Type = WITHDRAW.
+Sonuç: transaction tablosunda 1 kayıt.
+
+Kalite notu: amount > 0; (opsiyonel) yeterli bakiye kontrolü business rule olabilir.
+
+⸻
+
+UC-05 — Ücret/komisyon kesme (FEE)
+
+Amaç: Sistem tarafından ücret işlemi yaratmak.
+Aktör: Sistem
+Ön koşul: Account aktif.
+Ana akış:
+	1.	Sistem OUT yönünde FEE transaction’ı yaratır.
+Sonuç: transaction tablosunda 1 kayıt.
+
+Kalite notu: Fee’nin kaynağı/ sebebi izlenebilir olmalı.
+
+⸻
+
+UC-06 — Hesaplar arası transfer (TRANSFER)
+
+Amaç: Bir hesaptan diğerine para taşımak.
+Aktör: Customer / Sistem
+Ön koşul: Kaynak ve hedef account aktif; genelde aynı currency (bu projede öyle varsayalım).
+Ana akış:
+	1.	Sistem transfer kaydını oluşturur (transfer olayı).
+	2.	Kaynak account için OUT / TRANSFER transaction’ı oluşturur.
+	3.	Hedef account için IN / TRANSFER transaction’ı oluşturur.
+	4.	Bu iki transaction aynı transfer olayına bağlanır.
+Sonuç:
+
+	•	transfer tablosunda 1 kayıt
+	•	transaction tablosunda 2 kayıt (biri OUT biri IN)
+
+Kalite notu (çok önemli):
+	•	Transfer’e bağlı transaction sayısı = 2 olmalı
+	•	Direction seti {OUT, IN} olmalı
+	•	Amount’lar eşit olmalı
+	•	Currency uyumlu olmalı
+
+⸻
+
+UC-07 — Transaction/Transfer kaydı iptali veya düzeltme (Reversal/Correction)
+
+Amaç: Hatalı gelen veriyi düzeltilebilir hale getirmek (gerçek hayatta şart).
+Aktör: Sistem / Admin
+Ön koşul: Transaction mevcut.
+Ana akış (genel):
+	1.	Sistem hatalı kaydı “silmez”, yerine düzeltme kaydı ekler veya status değiştirir.
+Sonuç: Audit korunur.
+
+Not: Bu use-case’i istersen “ileride” yaparız; ama attribute düşünürken “status” ihtiyacını tetikleyebilir.
+
+⸻
+
+UC-08 — Data Quality Pipeline çalışır (Raw → Clean / Quarantine)
+
+Amaç: Sisteme gelen kayıtların güvenilirliğini test etmek.
+Aktör: Sistem (pipeline)
+Ön koşul: Raw veri geldi (transaction/transfer/account/customer).
+Ana akış:
+	1.	Sistem kuralları çalıştırır (validity/consistency/uniqueness).
+	2.	Temiz kayıtlar “clean” olarak kabul edilir.
+	3.	Hatalı kayıtlar karantinaya ayrılır ve “neden” etiketlenir.
+Sonuç: AI’a giden verinin güvenilirliği garanti edilir.
+
+Bu use-case şunu gerektirir: “kayıtların kaynağı, run_id, fail_reason” gibi attribute’lar veya ileride ek tablolar.
+
+⸻
+
+UC-09 — AI Summary üretimi (Guardrail’li)
+
+Amaç: AI’ın yalnızca temiz/özet veriden rapor üretmesi.
+Aktör: Sistem + AI
+Ön koşul: DQ pipeline sonucu var.
+Ana akış:
+	1.	Sistem metrikleri çıkarır (kaç transaction, kaç transfer, toplam hacim, en çok hata kuralı).
+	2.	AI’a sadece bu özet veriler verilir.
+	3.	AI rapor üretir ve “confidence” eklenir.
+Sonuç: Yanlış veriyle uydurma rapor riski düşer.
