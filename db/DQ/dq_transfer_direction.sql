@@ -196,7 +196,7 @@ dq01 AS (
   SELECT
     r.runid,
     'DQ-01',
-    'transfer',
+    'Transfer',
     trn.transferId
   FROM r
   JOIN transaction trn ON trn.transferId IS NOT NULL
@@ -211,7 +211,7 @@ dq02 AS (
   SELECT
     r.runid,
     'DQ-02',
-    'transfer',
+    'Transfer',
     t.transferId
   FROM r
   JOIN transaction trn ON trn.transferId IS NOT NULL
@@ -229,7 +229,7 @@ dq03 AS (
   SELECT DISTINCT
     r.runid,
     'DQ-03',
-    'transfer',
+    'Transfer',
     t.transferId
   FROM r
   JOIN transaction trn ON trn.transferId IS NOT NULL
@@ -250,7 +250,7 @@ dq04 AS (
   SELECT DISTINCT
     r.runid,
     'DQ-04',
-    'transfer',
+    'Transfer',
     t.transferId
   FROM r
   JOIN transaction trn ON trn.transferId IS NOT NULL
@@ -265,13 +265,63 @@ dq05 AS (
   SELECT DISTINCT
     r.runid,
     'DQ-05',
-    'transfer',
+    'Transfer',
     t.transferId
   FROM r
   JOIN transfer t ON true
   JOIN account a_from ON a_from.accountId = t.fromAccount
   JOIN account a_to   ON a_to.accountId   = t.toAccount
   WHERE a_from.currency <> a_to.currency
+  RETURNING 1
+),
+-- DQ-C01: Identifies ACTIVE customers without at least one linked account, indicating incomplete onboarding.
+dqC01 AS (
+  INSERT INTO dq_statistics.failures (runId, ruleCode, entityType, entityId)
+  SELECT DISTINCT
+    r.runid,
+    'DQ-C01',
+    'Customer',
+    c.customerid
+  FROM r
+  INNER JOIN customer c ON TRUE
+  LEFT JOIN account a ON a.customerid = c.customerid
+  WHERE c.status = 'ACTIVE' AND a.accountid IS NULL
+  RETURNING 1 
+
+),
+-- DQ-A01: Flags ACTIVE accounts that have no associated transactions, indicating unused or incorrectly activated accounts.
+dqA01 AS (
+  INSERT INTO dq_statistics.failures (runId, ruleCode, entityType, entityId)
+  SELECT DISTINCT
+    r.runid,
+    'DQ-A01',
+    'Account',
+    a.accountid
+  FROM r
+  INNER JOIN account a ON TRUE
+  LEFT JOIN transaction t ON a.accountid = t.accountid
+  WHERE a.status = 'ACTIVE' AND t.accountid IS NULL
+  RETURNING 1 
+
+),
+-- DQ-A02: Flags accounts involved in a transfer where the counterparty account has a different currency, indicating invalid cross-currency transfer activity.
+dqA02 AS (
+  INSERT INTO dq_statistics.failures (runId, ruleCode, entityType, entityId)
+  SELECT DISTINCT
+    r.runid,
+    'DQ-A02',
+    'Account',
+    a.accountid
+  FROM r
+  JOIN account a ON TRUE
+  JOIN transaction t
+    ON t.accountid = a.accountid
+  JOIN transfer tr
+    ON tr.transferid = t.transferid
+  JOIN account a2
+    ON a2.accountid IN (tr.fromaccount, tr.toaccount)
+   AND a2.accountid <> a.accountid
+  WHERE a.currency <> a2.currency
   RETURNING 1
 )
 
@@ -282,12 +332,19 @@ SELECT
   (SELECT COUNT(*) FROM dq03) AS dq03_fail_count,
   (SELECT COUNT(*) FROM dq04) AS dq04_fail_count,
   (SELECT COUNT(*) FROM dq05) AS dq05_fail_count,
+  (SELECT COUNT(*) FROM dqC01) AS dqC01_fail_count,
+  (SELECT COUNT(*) FROM dqA01) AS dqA01_fail_count,
+  (SELECT COUNT(*) FROM dqA02) AS dqA02_fail_count,
+
   (
     (SELECT COUNT(*) FROM dq01) +
     (SELECT COUNT(*) FROM dq02) +
     (SELECT COUNT(*) FROM dq03) +
     (SELECT COUNT(*) FROM dq04) +
-    (SELECT COUNT(*) FROM dq05)
+    (SELECT COUNT(*) FROM dq05) +
+    (SELECT COUNT(*) FROM dqC01)+
+    (SELECT COUNT(*) FROM dqA01)+
+    (SELECT COUNT(*) FROM dqA02)
   ) AS total_fail_count;
 
 SELECT ruleCode, COUNT(*)
@@ -295,4 +352,5 @@ FROM dq_statistics.failures
 WHERE runId = (SELECT runId FROM dq_statistics.runs ORDER BY runId DESC LIMIT 1)
 GROUP BY ruleCode
 ORDER BY ruleCode;
+
 
