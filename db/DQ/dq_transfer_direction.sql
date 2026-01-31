@@ -62,7 +62,6 @@ GROUP BY trn.transferId
 HAVING COUNT(*) <> 2;
 
 
-
 -- DQ-02: Each transfer must have exactly 1 IN and 1 OUT transaction
 -- This query returns transfers that violate the rule.
 SELECT
@@ -178,10 +177,122 @@ WHERE a1.currency <>a2.currency ;
 SELECT *
 FROM dq_statistics.runs
 ORDER BY runid DESC
-LIMIT 3;
+LIMIT 30;
 
 SELECT *
 FROM dq_statistics.failures
 ORDER BY failureId DESC
 LIMIT 20;
+
+-- Single-run DQ runner: executes all DQ rules in one run and logs all detected data quality failures under the same runId.
+-- Executes all data quality rules in a single run and records every violation in dq_statistics.failures for audit and reporting.
+WITH r AS (
+  INSERT INTO dq_statistics.runs DEFAULT VALUES
+  RETURNING runid
+),
+
+dq01 AS (
+  INSERT INTO dq_statistics.failures (runId, ruleCode, entityType, entityId)
+  SELECT
+    r.runid,
+    'DQ-01',
+    'transfer',
+    trn.transferId
+  FROM r
+  JOIN transaction trn ON trn.transferId IS NOT NULL
+  JOIN transfer t ON t.transferId = trn.transferId
+  GROUP BY r.runid, trn.transferId
+  HAVING COUNT(*) <> 2
+  RETURNING 1
+),
+
+dq02 AS (
+  INSERT INTO dq_statistics.failures (runId, ruleCode, entityType, entityId)
+  SELECT
+    r.runid,
+    'DQ-02',
+    'transfer',
+    t.transferId
+  FROM r
+  JOIN transaction trn ON trn.transferId IS NOT NULL
+  JOIN transfer t ON t.transferId = trn.transferId
+  GROUP BY r.runid, t.transferId
+  HAVING
+    SUM(CASE WHEN trn.direction = 'OUT' THEN 1 ELSE 0 END) <> 1
+    OR
+    SUM(CASE WHEN trn.direction = 'IN'  THEN 1 ELSE 0 END) <> 1
+  RETURNING 1
+),
+
+dq03 AS (
+  INSERT INTO dq_statistics.failures (runId, ruleCode, entityType, entityId)
+  SELECT DISTINCT
+    r.runid,
+    'DQ-03',
+    'transfer',
+    t.transferId
+  FROM r
+  JOIN transaction trn ON trn.transferId IS NOT NULL
+  JOIN transfer t ON t.transferId = trn.transferId
+  WHERE trn.type = 'TRANSFER'
+    AND (
+      (trn.accountId = t.fromAccount AND trn.direction <> 'OUT')
+      OR
+      (trn.accountId = t.toAccount   AND trn.direction <> 'IN')
+      OR
+      (trn.accountId NOT IN (t.fromAccount, t.toAccount))
+    )
+  RETURNING 1
+),
+
+dq04 AS (
+  INSERT INTO dq_statistics.failures (runId, ruleCode, entityType, entityId)
+  SELECT DISTINCT
+    r.runid,
+    'DQ-04',
+    'transfer',
+    t.transferId
+  FROM r
+  JOIN transaction trn ON trn.transferId IS NOT NULL
+  JOIN transfer t ON t.transferId = trn.transferId
+  WHERE trn.type = 'TRANSFER'
+    AND t.amount <> trn.amount
+  RETURNING 1
+),
+
+dq05 AS (
+  INSERT INTO dq_statistics.failures (runId, ruleCode, entityType, entityId)
+  SELECT DISTINCT
+    r.runid,
+    'DQ-05',
+    'transfer',
+    t.transferId
+  FROM r
+  JOIN transfer t ON true
+  JOIN account a_from ON a_from.accountId = t.fromAccount
+  JOIN account a_to   ON a_to.accountId   = t.toAccount
+  WHERE a_from.currency <> a_to.currency
+  RETURNING 1
+)
+
+SELECT
+  (SELECT runid FROM r) AS runid,
+  (SELECT COUNT(*) FROM dq01) AS dq01_fail_count,
+  (SELECT COUNT(*) FROM dq02) AS dq02_fail_count,
+  (SELECT COUNT(*) FROM dq03) AS dq03_fail_count,
+  (SELECT COUNT(*) FROM dq04) AS dq04_fail_count,
+  (SELECT COUNT(*) FROM dq05) AS dq05_fail_count,
+  (
+    (SELECT COUNT(*) FROM dq01) +
+    (SELECT COUNT(*) FROM dq02) +
+    (SELECT COUNT(*) FROM dq03) +
+    (SELECT COUNT(*) FROM dq04) +
+    (SELECT COUNT(*) FROM dq05)
+  ) AS total_fail_count;
+
+SELECT ruleCode, COUNT(*)
+FROM dq_statistics.failures
+WHERE runId = (SELECT runId FROM dq_statistics.runs ORDER BY runId DESC LIMIT 1)
+GROUP BY ruleCode
+ORDER BY ruleCode;
 
