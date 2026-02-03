@@ -4,7 +4,13 @@ const path = require("path");
 
 async function runSqlFile(pool, relativePath) {
   try {
-    const absolutePath = path.resolve(__dirname, "..", "..", relativePath);
+    const absolutePath = path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      relativePath,
+    );
     const sql = fs.readFileSync(absolutePath, "utf8");
     const res = await pool.query(sql);
     return res.rows;
@@ -36,8 +42,8 @@ module.exports = { runSqlFile };
 
         path.resolve(__dirname, '..', '..', relativePath)
 
-     __dirname = bu dosyanın bulunduğu klasör (ai/src).
-     '..', '..' = iki klasör yukarı çık (repo root).
+     __dirname = bu dosyanın bulunduğu klasör (ai/src/utils).
+     '..', '..', '..' = üç klasör yukarı çık (repo root).
      sonra relativePath'i ekle (db/...).
 
   3) SQL dosyasını okuma:

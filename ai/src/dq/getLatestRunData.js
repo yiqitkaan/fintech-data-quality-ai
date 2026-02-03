@@ -1,4 +1,4 @@
-const { runSqlFile } = require("./runSqlFile");
+const { runSqlFile } = require("../utils/runSqlFile");
 async function getLatestRunData(pool) {
   if (!pool) throw new Error("pool is required");
   try {

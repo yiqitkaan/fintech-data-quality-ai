@@ -1,5 +1,5 @@
 const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "..", ".env") });
+require("dotenv").config({ path: path.resolve(__dirname, "..", "..", ".env") });
 const { Pool } = require("pg");
 const { getLatestRunData } = require("./getLatestRunData");
 
@@ -18,8 +18,8 @@ async function main() {
       "SELECT current_database() AS db, current_user AS usr;",
     );
     console.log("CONNECTED_TO:", who.rows[0]);
-   const { summaryRows, byRuleRows, failureRows } =
-        await getLatestRunData(pool);
+    const { summaryRows, byRuleRows, failureRows } =
+      await getLatestRunData(pool);
     console.log("SUMMARY:", summaryRows[0]);
     console.log("BY_RULE:", byRuleRows);
     console.log("FAILURES:", failureRows);

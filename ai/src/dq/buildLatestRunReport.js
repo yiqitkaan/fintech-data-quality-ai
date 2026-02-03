@@ -1,10 +1,15 @@
 const path = require("path");
-require("dotenv").config({ path: path.resolve(__dirname, "..", ".env") });
+require("dotenv").config({ path: path.resolve(__dirname, "..", "..", ".env") });
 const fs = require("fs");
 const { Pool } = require("pg");
 const { getLatestRunData } = require("./getLatestRunData");
-const reportPath = path.resolve(__dirname, "..", "reports", "latest_run.json");
-
+const reportPath = path.resolve(
+  __dirname,
+  "..",
+  "..",
+  "reports",
+  "latest_run.json",
+);
 const pool = new Pool({
   host: process.env.PGHOST,
   port: Number(process.env.PGPORT || 5432),
@@ -58,9 +63,9 @@ async function main() {
 
     const report = {
       meta,
-      summary : {
+      summary: {
         totalFailures,
-      }, 
+      },
       byRule,
       samplesByRule,
       failures,
