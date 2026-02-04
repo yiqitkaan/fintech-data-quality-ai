@@ -1,0 +1,131 @@
+{
+  "meta": {
+    "runId": 14,
+    "runTime": "2026-01-31T13:17:37.150Z",
+    "generatedAt": "2026-02-04T11:28:38.966Z",
+    "version": 1
+  },
+  "summary": {
+    "totalFailures": 11
+  },
+  "byRule": [
+    {
+      "ruleCode": "DQ-01",
+      "failCount": 1
+    },
+    {
+      "ruleCode": "DQ-02",
+      "failCount": 2
+    },
+    {
+      "ruleCode": "DQ-03",
+      "failCount": 2
+    },
+    {
+      "ruleCode": "DQ-04",
+      "failCount": 1
+    },
+    {
+      "ruleCode": "DQ-05",
+      "failCount": 1
+    },
+    {
+      "ruleCode": "DQ-A01",
+      "failCount": 1
+    },
+    {
+      "ruleCode": "DQ-A02",
+      "failCount": 2
+    },
+    {
+      "ruleCode": "DQ-C01",
+      "failCount": 1
+    }
+  ],
+  "samplesByRule": {
+    "DQ-01": [
+      4
+    ],
+    "DQ-02": [
+      4,
+      5
+    ],
+    "DQ-03": [
+      5,
+      6
+    ],
+    "DQ-04": [
+      3
+    ],
+    "DQ-05": [
+      2
+    ],
+    "DQ-A01": [
+      4
+    ],
+    "DQ-A02": [
+      2,
+      3
+    ],
+    "DQ-C01": [
+      4
+    ]
+  },
+  "failures": [
+    {
+      "ruleCode": "DQ-01",
+      "entityType": "Transfer",
+      "entityId": 4
+    },
+    {
+      "ruleCode": "DQ-02",
+      "entityType": "Transfer",
+      "entityId": 4
+    },
+    {
+      "ruleCode": "DQ-02",
+      "entityType": "Transfer",
+      "entityId": 5
+    },
+    {
+      "ruleCode": "DQ-03",
+      "entityType": "Transfer",
+      "entityId": 5
+    },
+    {
+      "ruleCode": "DQ-03",
+      "entityType": "Transfer",
+      "entityId": 6
+    },
+    {
+      "ruleCode": "DQ-04",
+      "entityType": "Transfer",
+      "entityId": 3
+    },
+    {
+      "ruleCode": "DQ-05",
+      "entityType": "Transfer",
+      "entityId": 2
+    },
+    {
+      "ruleCode": "DQ-A01",
+      "entityType": "Account",
+      "entityId": 4
+    },
+    {
+      "ruleCode": "DQ-A02",
+      "entityType": "Account",
+      "entityId": 2
+    },
+    {
+      "ruleCode": "DQ-A02",
+      "entityType": "Account",
+      "entityId": 3
+    },
+    {
+      "ruleCode": "DQ-C01",
+      "entityType": "Customer",
+      "entityId": 4
+    }
+  ]
+}
