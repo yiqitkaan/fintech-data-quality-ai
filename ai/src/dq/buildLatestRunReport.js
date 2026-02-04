@@ -82,4 +82,4 @@ async function main() {
   }
 }
 
-main();
+module.exports = { buildLatestRunReport: main };
