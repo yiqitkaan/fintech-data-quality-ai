@@ -33,6 +33,8 @@ Ensure only clean, validated financial data is used for AI summaries and financi
 - SQL (schema, seed data, DQ rules, dashboard queries)
 - Node.js (pg + dotenv) for pipeline/report generation
 - OpenAI API (Responses API)
+- React (Vite) for dashboard UI
+- Simple data visualizations (bar + donut charts)
 
 ## Repository Structure
 - `db/`
@@ -44,6 +46,11 @@ Ensure only clean, validated financial data is used for AI summaries and financi
   - `src/dq/` → buildLatestRunReport, getLatestRunData, etc.
   - `src/ai/` → promptBuilder, openaiClient, buildCtoReport, ruleDictionary
   - `src/utils/` → runSqlFile helper
+- `frontend/`
+  - `public/` → static inputs (`latest_run.json`, `cto_report.md`)
+  - `src/components/` → Dashboard, charts, CTO report view
+  - `src/utils/` → data loaders
+  - Vite + React configuration
 - `samples/reports/` → committed example outputs (safe, no secrets)
 
 ## Setup
@@ -111,6 +118,43 @@ node src/pipeline/runPipeline.js
 node src/dq/buildLatestRunReport.js
 node src/ai/buildCtoReport.js
 ```
+
+## Frontend Dashboard
+
+The project includes a React (Vite) dashboard that visualizes:
+
+- Latest DQ run summary
+- Failures by Rule (bar chart)
+- Failures by Entity Type (bar + donut distribution)
+- Example Violations
+- AI-generated CTO report (rendered from Markdown)
+
+### Run Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open:
+http://localhost:5173
+
+### Frontend Data Requirement
+
+Before starting the frontend, ensure:
+
+- `ai/reports/latest_run.json` exists
+- `ai/reports/cto_report_*.md` exists
+
+Copy them into:
+
+```bash
+frontend/public/latest_run.json
+frontend/public/cto_report.md
+```
+
+The dashboard reads these static files and does not call the database directly.
 
 ## Sample Outputs
 - `samples/reports/latest_run.sample.json`
