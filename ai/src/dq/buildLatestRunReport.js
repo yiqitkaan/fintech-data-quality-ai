@@ -168,8 +168,10 @@ async function main() {
 
     console.log("WROTE:", reportPath);
     console.log("RUN:", runId, "TOTAL_FAILS:", totalFailures);
+    return reportPath;
   } catch (err) {
     console.error("buildLatestRunReport failed:", err.message);
+    throw err;
   } finally {
     await pool.end();
   }

@@ -70,10 +70,11 @@ async function main() {
 
     console.log("WROTE:", ctoReportPath);
     console.log("PREVIEW:\n", answer.slice(0, 300), "...");
+    return ctoReportPath;
   } catch (err) {
     console.error("buildCtoReport failed:", err?.message || err);
     console.error("Tried reading:", latestRunPath);
-    process.exit(1);
+    throw err;
   }
 }
 
