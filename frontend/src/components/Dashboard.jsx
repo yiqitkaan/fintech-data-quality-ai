@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import EntityTypeDistribution from './EntityTypeDistribution.jsx'
+import EntityHealthOverview from './EntityHealthOverview.jsx'
 import SimpleBarChart from './SimpleBarChart.jsx'
 
 const formatValue = (value) => {
@@ -273,6 +274,7 @@ export default function Dashboard({ data, onReload, children }) {
             <p className="muted small">Generated narrative report for stakeholders and decision makers.</p>
           </div>
           {children ? <div className="grid">{children}</div> : null}
+          <EntityHealthOverview entityHealth={data?.entityHealth} />
         </div>
       )}
 

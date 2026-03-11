@@ -32,6 +32,9 @@
   --donut-transfer: #f7cba8;
   --donut-account: #efc3d5;
   --donut-customer: #b8c8e5;
+  --entity-health-pass: #a8dfc5;
+  --entity-health-fail: #f5bdb1;
+  --entity-health-empty: #e5eeeb;
 }
 
 * {
@@ -353,6 +356,95 @@ p {
 
 .entity-donut-empty {
   margin-top: 2px;
+}
+
+.entity-health-section {
+  margin-top: 8px;
+}
+
+.entity-health-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.entity-health-card {
+  padding: 18px;
+}
+
+.entity-health-card h3 {
+  margin-bottom: 10px;
+}
+
+.entity-health-donut-wrap {
+  display: grid;
+  justify-items: center;
+  margin-bottom: 10px;
+}
+
+.entity-health-donut {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px rgba(78, 115, 138, 0.08);
+}
+
+.entity-health-donut.empty {
+  background: var(--entity-health-empty);
+}
+
+.entity-health-donut-core {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #d5e3ea;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 2px;
+  box-shadow: 0 4px 12px rgba(64, 109, 130, 0.08);
+}
+
+.entity-health-donut-core strong {
+  font-size: 0.98rem;
+  color: var(--ink);
+}
+
+.entity-health-donut-core span {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.entity-health-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.entity-health-stats li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8fcfa;
+  border: 1px solid #dceee7;
+  font-size: 0.85rem;
+}
+
+.metric-label {
+  color: var(--muted);
+}
+
+.metric-value {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .controls-wrap {
@@ -704,5 +796,19 @@ table th {
   .entity-donut-core {
     width: 84px;
     height: 84px;
+  }
+
+  .entity-health-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .entity-health-donut {
+    width: 116px;
+    height: 116px;
+  }
+
+  .entity-health-donut-core {
+    width: 72px;
+    height: 72px;
   }
 }

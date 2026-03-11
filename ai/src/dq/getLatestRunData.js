@@ -14,7 +14,27 @@ async function getLatestRunData(pool) {
       pool,
       "db/ai_inputs/latest_run_failures.sql",
     );
-    return { summaryRows, byRuleRows, failureRows };
+    const totalAccountCount = await runSqlFile(
+      pool,
+      "db/ai_inputs/totalAccountCount.sql",
+    );
+    const totalCustomerCount = await runSqlFile(
+      pool,
+      "db/ai_inputs/totalCustomerCount.sql",
+    );
+    const totalTransferCount = await runSqlFile(
+      pool,
+      "db/ai_inputs/totalTransferCount.sql",
+    );
+
+    return {
+      summaryRows,
+      byRuleRows,
+      failureRows,
+      totalAccountCount,
+      totalCustomerCount,
+      totalTransferCount,
+    };
   } catch (err) {
     console.error("getLatestRunData failed:", err.message);
     throw err;
