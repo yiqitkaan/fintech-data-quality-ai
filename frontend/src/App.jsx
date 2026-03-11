@@ -13,9 +13,7 @@ const initialState = {
 export default function App() {
   const [state, setState] = useState(initialState)
 
-  const fetchLatest = useCallback(async () => {
-    setState({ status: 'loading', data: null, error: null })
-    const result = await loadLatestRun()
+  const applyLatestRunResult = useCallback((result) => {
     if (result.ok) {
       setState({ status: 'ready', data: result.data, error: null })
     } else {
@@ -23,9 +21,27 @@ export default function App() {
     }
   }, [])
 
+  const fetchLatest = useCallback(async () => {
+    setState({ status: 'loading', data: null, error: null })
+    const result = await loadLatestRun()
+    applyLatestRunResult(result)
+  }, [applyLatestRunResult])
+
   useEffect(() => {
-    fetchLatest()
-  }, [fetchLatest])
+    let isMounted = true
+
+    async function loadInitialRun() {
+      const result = await loadLatestRun()
+      if (!isMounted) return
+      applyLatestRunResult(result)
+    }
+
+    void loadInitialRun()
+
+    return () => {
+      isMounted = false
+    }
+  }, [applyLatestRunResult])
 
   if (state.status === 'loading') {
     return (

@@ -12,6 +12,14 @@ const initialState = {
 export default function CtoReport() {
   const [state, setState] = useState(initialState)
 
+  const applyReportResult = useCallback((result) => {
+    if (result.ok) {
+      setState({ status: 'ready', data: result.data, error: null })
+    } else {
+      setState({ status: 'error', data: '', error: result.error })
+    }
+  }, [])
+
   const downloadReport = useCallback(() => {
     const link = document.createElement('a')
     link.href = '/cto_report.md'
@@ -21,19 +29,21 @@ export default function CtoReport() {
     document.body.removeChild(link)
   }, [])
 
-  const fetchReport = useCallback(async () => {
-    setState({ status: 'loading', data: '', error: null })
-    const result = await loadCtoReport()
-    if (result.ok) {
-      setState({ status: 'ready', data: result.data, error: null })
-    } else {
-      setState({ status: 'error', data: '', error: result.error })
-    }
-  }, [])
-
   useEffect(() => {
-    fetchReport()
-  }, [fetchReport])
+    let isMounted = true
+
+    async function loadInitialReport() {
+      const result = await loadCtoReport()
+      if (!isMounted) return
+      applyReportResult(result)
+    }
+
+    void loadInitialReport()
+
+    return () => {
+      isMounted = false
+    }
+  }, [applyReportResult])
 
   return (
     <div className="card">
@@ -53,7 +63,7 @@ export default function CtoReport() {
             <p className="muted">Setup instructions:</p>
             <pre>
               <code>Run the pipeline: cd ai && node src/pipeline/runPipeline.js</code>
-              <code>Copy: ai/reports/cto_report_run_&lt;runId&gt;_*.md -&gt; frontend/public/cto_report.md</code>
+              <code>Pipeline auto-publishes latest_run.json and cto_report.md into frontend/public/</code>
             </pre>
           </div>
         }

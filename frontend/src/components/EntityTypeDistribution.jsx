@@ -12,17 +12,23 @@ export default function EntityTypeDistribution({ barData, counts }) {
   }))
   const total = legendItems.reduce((sum, item) => sum + item.count, 0)
 
-  let currentDegree = 0
   const donutStops = legendItems
-    .map((item) => {
-      const start = currentDegree
-      const ratio = total > 0 ? item.count / total : 0
-      const span = ratio * 360
-      currentDegree += span
-      const colorVar = `var(--donut-${item.type.toLowerCase()})`
-      return `${colorVar} ${start}deg ${currentDegree}deg`
-    })
-    .join(', ')
+    .reduce(
+      (acc, item) => {
+        const ratio = total > 0 ? item.count / total : 0
+        const span = ratio * 360
+        const start = acc.currentDegree
+        const end = start + span
+        const colorVar = `var(--donut-${item.type.toLowerCase()})`
+
+        return {
+          currentDegree: end,
+          stops: [...acc.stops, `${colorVar} ${start}deg ${end}deg`],
+        }
+      },
+      { currentDegree: 0, stops: [] },
+    )
+    .stops.join(', ')
 
   return (
     <div className="entity-distribution">

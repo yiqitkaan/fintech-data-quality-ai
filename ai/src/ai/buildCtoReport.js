@@ -10,26 +10,10 @@ const { buildCtoPrompt } = require("./promptBuilder");
 const { callOpenAI } = require("./openaiClient");
 
 // This file lives at: ai/src/ai/buildCtoReport.js
-// We want reports at: ai/reports/
-// Depending on how you run the script, resolving can be confusing; we try both candidates.
-const reportsDirCandidates = [
-  // correct: ai/src/ai -> ai/reports
-  path.resolve(__dirname, "..", "..", "..", "reports"),
-  // fallback (in case your folder layout differs)
-  path.resolve(__dirname, "..", "..", "reports"),
-];
-
-function pickReportsDir() {
-  for (const dir of reportsDirCandidates) {
-    const p = path.join(dir, "latest_run.json");
-    if (fs.existsSync(p)) return dir;
-  }
-  // Default to the first candidate; the error message below will show the attempted path.
-  return reportsDirCandidates[0];
-}
+// Reports are always written to: ai/reports/
+const reportsDir = path.resolve(__dirname, "..", "..", "reports");
 
 async function main() {
-  const reportsDir = pickReportsDir();
   const latestRunPath = path.join(reportsDir, "latest_run.json");
 
   try {

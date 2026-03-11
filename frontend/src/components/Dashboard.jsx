@@ -152,7 +152,7 @@ export default function Dashboard({ data, onReload, children }) {
             onClick={() => setActiveSection('report')}
             type="button"
           >
-            Data Quality Run Report
+            Data Quality Run Report By AI
           </button>
         </div>
       </div>
@@ -270,7 +270,7 @@ export default function Dashboard({ data, onReload, children }) {
       ) : (
         <div className="report-wrapper">
           <div className="section-caption">
-            <h2>Data Quality Run Report</h2>
+            <h2>Data Quality Run Report By AI</h2>
             <p className="muted small">Generated narrative report for stakeholders and decision makers.</p>
           </div>
           {children ? <div className="grid">{children}</div> : null}
