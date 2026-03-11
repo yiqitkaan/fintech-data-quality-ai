@@ -184,5 +184,6 @@ The dashboard reads these static files and does not call the database directly.
   → Add billing or increase quota in OpenAI platform
 
 ## EER Diagram (v1)
-![EER v1](docs/diagrams/eer_v1.jpg)
+![EER v1](docs/Diagrams/EER.jpg)
+
 The schema intentionally mimics a simplified banking ledger structure to demonstrate real-world data quality and reconciliation scenarios.
