@@ -9,6 +9,19 @@ The AI never queries the database directly. It only consumes validated structure
 
 This project demonstrates a small FinTech-style data model (Customer / Account / Transfer / Transaction), a set of Data Quality (DQ) rules, a DQ-run logging schema (`dq_statistics`), and an AI step that converts the latest DQ run into a CTO-friendly Markdown report.
 
+## 🎥 Demo
+
+Short walkthrough of the FinTech Data Quality + AI Dashboard:
+
+-> `docs/demo/fintech-dq-dashboard-demo.mp4`
+
+This video demonstrates:
+- Summary section & charts
+- Rule-based failure distribution
+- Entity health overview (pass/fail ratio)
+- AI-generated CTO report
+- End-to-end pipeline workflow
+
 ## Why this matters
 
 In financial systems, dirty transactional data can propagate into:
