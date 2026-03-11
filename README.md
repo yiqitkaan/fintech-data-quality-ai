@@ -13,7 +13,7 @@ This project demonstrates a small FinTech-style data model (Customer / Account /
 
 Short walkthrough of the FinTech Data Quality + AI Dashboard:
 
--> `docs/demo/fintech-dq-dashboard-demo.mp4`
+-> [Watch the demo video](docs/demo/fintech-dq-dashboard-demo.mp4)
 
 This video demonstrates:
 - Summary section & charts
